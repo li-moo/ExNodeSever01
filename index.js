@@ -6,6 +6,17 @@ app.get('/', (req, res) => { //express 앱(app)을 넣고, root directory에 오
   res.send('Hello World!') //"Hello World!" 를 출력되게 해준다.
 })
 
+app.get('/', (req, res) => { //express 앱(app)을 넣고, root directory에 오면,
+  res.send('!!!Hello World!!!!') //"Hello World!" 를 출력되게 해준다.
+})
+
+
+console.log(`하이요`) //
+console.log("Hello, Node.js!");
+
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 }) //포트 4000번에서 이 앱을 실행한다.
+
+// 실행 node.index.js -> 서버 구
