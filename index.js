@@ -73,7 +73,7 @@ app.post('/attendance', (req, res) => {
     db.query(query, [member_number, today, in_time, out_time, in_progress], (err, result) => {
         if (err) {
             console.error('데이터 삽입 중 오류 발생:', err);
-            res.status(500).json({ error: '데이터 삽입 중 오류 발생' });
+            res.status(500).json({ error: '데이터 삽입 중 에러' });
         } else {
             res.status(201).json({ id: result.insertId, message: '데이터 삽입 성공' });
         }
@@ -98,14 +98,14 @@ app.post('/parking', (req, res) => {
     // 트랜잭션
     db.beginTransaction((err) => {
         if (err) {
-        return res.status(500).json({ error: '트랜잭션 시작 중 오류 발생' });
+        return res.status(500).json({ error: '트랜잭션 시작 중 에러' });
         }
 
         db.query(parkingQuery, [car_number, member_number, out_time, parking_time], (err, result) => {
         if (err) {
             return db.rollback(() => {
-            console.error('parking 테이블에 데이터 삽입 중 오류 발생:', err);
-            res.status(500).json({ error: 'parking 테이블에 데이터 삽입 중 오류 ' });
+            console.error('parking 테이블에 데이터 삽입 중 에러', err);
+            res.status(500).json({ error: 'parking 테이블에 데이터 삽입 중 에러 ' });
             });
         } // 만약 parkingQuery만 실행되고 attanceQuery가 실행안된다하더라도
             // 롤백을 잘못된 데이터가 저장되지 않는다.
@@ -115,8 +115,8 @@ app.post('/parking', (req, res) => {
         db.query(attendanceQuery, [out_time, member_number], (err, result) => {
             if (err) {
             return db.rollback(() => {
-                console.error('attendance 테이블에 데이터 삽입 중 오류 발생:', err);
-                res.status(500).json({ error: 'attendance 테이블에 데이터 삽입 중 오류' });
+                console.error('attendance 테이블에 데이터 삽입 중 에러', err);
+                res.status(500).json({ error: 'attendance 테이블에 데이터 삽입 중 에러' });
                 console.log(result);
             });
             }
@@ -125,8 +125,8 @@ app.post('/parking', (req, res) => {
             db.commit((err) => {
             if (err) {
                 return db.rollback(() => {
-                console.error('트랜잭션 커밋 중 오류 발생:', err);
-                res.status(500).json({ error: '트랜잭션 커밋 중 오류 발생' });
+                console.error('트랜잭션 커밋 중 에러:', err);
+                res.status(500).json({ error: '트랜잭션 커밋 중 에러' });
                 });
             }
             res.status(201).json({ message: '데이터 삽입 성공' });
