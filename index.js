@@ -3,7 +3,6 @@ const app = express() //가져온 express 모듈의 function을 이용해서 새
 const port = 4000 // 백 포트번호 공식문서는 3000번인데 4000번으로 하겠음
 const db = require('./lib/db');
 const bodyParser = require('body-parser');
-
 // const corsOptions = {
 //     origin: 'http://localhost:3000', // 클라이언트의 주소
 //     methods: ['GET', 'POST'], // 사용할 HTTP 메서드
@@ -31,10 +30,38 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 }) //포트 4000번에서 이 앱을 실행한다.
 
+// app.get("/member", (req, res) => {
+//     const memberNumber = req.query.member_number;
+
+//     db.query(`
+//         SELECT member.name, member.member_number, member.member_img, member.car_number, 
+//             membership_period.first_membership_period, membership_period.second_membership_period,
+//             parking.is_parking
+//         FROM member
+//         LEFT JOIN membership_list ON member.member_number = membership_list.member_number
+//         LEFT JOIN membership_period ON membership_list.membership_id = membership_period.membership_id
+//         LEFT JOIN parking ON member.car_number = parking.car_number
+//         WHERE member.member_number = ?
+//         ORDER BY membership_period.id DESC
+//         LIMIT 1`, [memberNumber], (err, result) => {
+//         if (err) {
+//             console.error('member data error:', err);
+//             res.status(500).send('내부 서버 오류');
+//         } else {
+//             if (result.length === 0) {
+//                 res.status(404).send('해당하는 회원이 없습니다.');
+//             } else {
+//                 res.json(result[0]);
+//                 console.log('member data:', result[0]);
+//             }
+//         }
+//     });
+// });
+
 app.get("/member", (req, res) => {
     const memberNumber = req.query.member_number;
 
-    db.query(`
+    const query = `
         SELECT member.name, member.member_number, member.member_img, member.car_number, 
             membership_period.first_membership_period, membership_period.second_membership_period,
             parking.is_parking
@@ -44,7 +71,10 @@ app.get("/member", (req, res) => {
         LEFT JOIN parking ON member.car_number = parking.car_number
         WHERE member.member_number = ?
         ORDER BY membership_period.id DESC
-        LIMIT 1`, [memberNumber], (err, result) => {
+        LIMIT 1
+    `;
+
+    db.query(query, [memberNumber], (err, result) => {
         if (err) {
             console.error('member data error:', err);
             res.status(500).send('내부 서버 오류');
@@ -134,6 +164,27 @@ app.post('/parking', (req, res) => {
         });
         });
     });
+});
+
+app.post('/exit', (req, res) => {
+    const { member_number, out_time} = req.body;
+
+    const attendanceQuery = `
+    UPDATE attendance
+    SET out_time = ?
+    WHERE member_number = ?
+    AND out_time IS NULL
+    ORDER BY id DESC LIMIT 1;
+    `;
+
+    db.query(attendanceQuery, [out_time, member_number], (err, result) => {
+        if (err) {
+            console.error('데이터 삽입 중 오류 발생:', err);
+            res.status(500).json({ error: '데이터 삽입 중 에러' });
+        } else {
+            res.status(201).json({ id: result.insertId, message: '데이터 삽입 성공' });
+        }
+    });  
 });
 
 
