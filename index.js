@@ -67,7 +67,7 @@ app.get("/member", (req, res) => {
             parking.is_parking
         FROM member
         LEFT JOIN membership_list ON member.member_number = membership_list.member_number
-        LEFT JOIN membership_period ON membership_list.membership_id = membership_period.membership_id
+        LEFT JOIN membership_period ON member.member_number = membership_period.member_number
         LEFT JOIN parking ON member.car_number = parking.car_number
         WHERE member.member_number = ?
         ORDER BY membership_period.id DESC
