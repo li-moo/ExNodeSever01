@@ -30,49 +30,40 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 }) //포트 4000번에서 이 앱을 실행한다.
 
-// app.get("/member", (req, res) => {
-//     const memberNumber = req.query.member_number;
-
-//     db.query(`
-//         SELECT member.name, member.member_number, member.member_img, member.car_number, 
-//             membership_period.first_membership_period, membership_period.second_membership_period,
-//             parking.is_parking
-//         FROM member
-//         LEFT JOIN membership_list ON member.member_number = membership_list.member_number
-//         LEFT JOIN membership_period ON membership_list.membership_id = membership_period.membership_id
-//         LEFT JOIN parking ON member.car_number = parking.car_number
-//         WHERE member.member_number = ?
-//         ORDER BY membership_period.id DESC
-//         LIMIT 1`, [memberNumber], (err, result) => {
-//         if (err) {
-//             console.error('member data error:', err);
-//             res.status(500).send('내부 서버 오류');
-//         } else {
-//             if (result.length === 0) {
-//                 res.status(404).send('해당하는 회원이 없습니다.');
-//             } else {
-//                 res.json(result[0]);
-//                 console.log('member data:', result[0]);
-//             }
-//         }
-//     });
-// });
-
 app.get("/member", (req, res) => {
     const memberNumber = req.query.member_number;
 
+    // const query = `
+    //     SELECT member.name, member.member_number, member.member_img, member.car_number, 
+    //         membership_period.first_membership_period, membership_period.second_membership_period,
+    //         parking.is_parking
+    //     FROM member
+    //     LEFT JOIN membership_list ON member.member_number = membership_list.member_number
+    //     LEFT JOIN membership_period ON member.member_number = membership_period.member_number
+    //     LEFT JOIN parking ON member.car_number = parking.car_number
+    //     WHERE member.member_number = ?
+    //     ORDER BY membership_period.id DESC
+    //     LIMIT 1
+    // `;
     const query = `
-        SELECT member.name, member.member_number, member.member_img, member.car_number, 
-            membership_period.first_membership_period, membership_period.second_membership_period,
-            parking.is_parking
-        FROM member
-        LEFT JOIN membership_list ON member.member_number = membership_list.member_number
-        LEFT JOIN membership_period ON member.member_number = membership_period.member_number
-        LEFT JOIN parking ON member.car_number = parking.car_number
-        WHERE member.member_number = ?
-        ORDER BY membership_period.id DESC
-        LIMIT 1
-    `;
+    SELECT 
+        member.name, 
+        member.member_number, 
+        member.member_img, 
+        member.car_number, 
+        membership_period.first_membership_period, 
+        membership_period.second_membership_period,
+        parking.is_parking,
+        attendance.in_time
+    FROM member
+    LEFT JOIN membership_list ON member.member_number = membership_list.member_number
+    LEFT JOIN membership_period ON member.member_number = membership_period.member_number
+    LEFT JOIN parking ON member.car_number = parking.car_number
+    LEFT JOIN attendance ON member.member_number = attendance.member_number
+    WHERE member.member_number = ?
+    ORDER BY membership_period.id DESC
+    LIMIT 1
+`;
 
     db.query(query, [memberNumber], (err, result) => {
         if (err) {
@@ -186,8 +177,6 @@ app.post('/exit', (req, res) => {
         }
     });  
 });
-
-
 
 // 실행 node.index.js -> 서버 실행
 // npm nodemon 업데이트 될때마다 node index.js를 실
