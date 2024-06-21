@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 //   };
 //   app.use(cors(corsOptions));
 
+
 const cors = require('cors');
 const corsOptions = {
     origin: 'http://localhost:3000',
